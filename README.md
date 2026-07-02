@@ -42,6 +42,8 @@ clinic-hub-app/
 │       ├── components/     # Sidebar, KPICard
 │       └── styles.css      # design system (cores, tipografia, componentes)
 ├── docs/screenshots/       # imagens usadas neste README
+├── package.json            # scripts de build/start para deploy como serviço único
+├── render.yaml              # blueprint de deploy no Render
 └── LICENSE
 ```
 
@@ -65,6 +67,31 @@ npm run dev        # http://localhost:5173
 ```
 
 Abra `http://localhost:5173` no navegador. O Vite já está configurado para redirecionar chamadas `/api/*` para o backend na porta 3333 (veja `frontend/vite.config.js`).
+
+## Deploy em produção (link fixo, grátis)
+
+O projeto está preparado para rodar como **um único serviço**: o backend serve tanto a API quanto o frontend já compilado (`frontend/dist`), então não precisa de dois hosts nem configurar CORS entre domínios diferentes.
+
+### Deploy no Render (recomendado, tem plano gratuito)
+
+1. Crie uma conta em [render.com](https://render.com) e conecte sua conta do GitHub
+2. **New +** → **Web Service** → selecione o repositório `hub-gestao-integrada`
+3. Configure:
+   - **Root Directory:** deixe em branco (raiz do repositório)
+   - **Build Command:** `npm run build`
+   - **Start Command:** `npm start`
+   - **Plan:** Free
+4. Clique em **Create Web Service**
+
+O Render instala as dependências, builda o frontend e sobe o backend servindo tudo junto. Em alguns minutos você recebe uma URL fixa tipo `https://hub-gestao-integrada.onrender.com`.
+
+> **Sobre os dados no plano gratuito:** o "banco de dados" é um arquivo JSON local (`backend/data/db.json`). No plano free do Render, o disco não é permanente entre reinicializações (o serviço dorme após ~15 min sem uso e acorda do zero). Ou seja: é ótimo para demonstração — sempre volta com os dados de exemplo originais —, mas não é adequado para uso real em produção com pacientes de verdade. Para isso, o próximo passo seria trocar o `lowdb` por um banco de verdade (Postgres, por exemplo) e usar um plano com disco persistente.
+
+Também existe um `render.yaml` na raiz do projeto — no Render dá pra usar **New +** → **Blueprint** apontando pro repositório, que ele lê esse arquivo e configura tudo sozinho.
+
+### Outras opções
+
+Qualquer host que rode Node.js funciona do mesmo jeito (Build Command `npm run build`, Start Command `npm start`): Railway, Fly.io, Heroku, ou uma VPS comum.
 
 ## Módulos implementados (primeira rodada)
 

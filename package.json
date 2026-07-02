@@ -1,0 +1,11 @@
+{
+  "name": "hub-gestao-integrada",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Hub Gestão Integrada - sistema de gestão de clínicas (CRM, agenda, financeiro, IA)",
+  "scripts": {
+    "build": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend",
+    "start": "npm start --prefix backend",
+    "seed": "npm run seed --prefix backend"
+  }
+}
