@@ -29,11 +29,29 @@ app.use('/api/agendamentos', crudRouter('appointments'));
 app.use('/api/financeiro', crudRouter('financialTransactions'));
 app.use('/api/prontuarios', crudRouter('clinicalRecords'));
 app.use('/api/leads', crudRouter('leads'));
+app.use('/api/comercial-agendamentos', crudRouter('comercialActivities'));
 app.use('/api/usuarios', crudRouter('users', ['passwordHash']));
 
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/comercial', comercialRouter);
 app.use('/api/assistente', assistantRouter);
+
+app.get('/api/trafego', async (req, res) => {
+  const db = await getDB();
+  res.json({ trafficDaily: db.data.trafficDaily, marketingSpend: db.data.marketingSpend });
+});
+
+app.get('/api/metas', async (req, res) => {
+  const db = await getDB();
+  res.json(db.data.metasComerciais);
+});
+
+app.put('/api/metas', async (req, res) => {
+  const db = await getDB();
+  db.data.metasComerciais = { ...db.data.metasComerciais, ...req.body };
+  await db.write();
+  res.json(db.data.metasComerciais);
+});
 
 app.get('/api/clinica', async (req, res) => {
   const db = await getDB();

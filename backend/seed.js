@@ -184,6 +184,14 @@ async function seed() {
     ...professionals.map(p => ({ id: uuid(), nome: p.nome, email: p.email, passwordHash: senhaPadraoHash, perfil: 'Médico', ativo: true })),
   ];
 
+  const metasComerciais = {
+    leadsAlvo: 70,
+    agendamentosAlvo: 45,
+    vendasAlvo: 12,
+    faturamentoAlvo: 20000,
+    cacAlvo: 400,
+  };
+
   db.data.professionals = professionals;
   db.data.patients = patients;
   db.data.appointments = appointments;
@@ -193,6 +201,7 @@ async function seed() {
   db.data.trafficDaily = trafficDaily;
   db.data.marketingSpend = marketingSpend;
   db.data.comercialActivities = comercialActivities;
+  db.data.metasComerciais = metasComerciais;
   db.data.users = users;
   db.data.activityLogs = [];
 

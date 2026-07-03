@@ -26,6 +26,7 @@ const defaultData = {
   trafficDaily: [],
   marketingSpend: { mes: '', total: 0, porCanal: {} },
   comercialActivities: [],
+  metasComerciais: { leadsAlvo: 0, agendamentosAlvo: 0, vendasAlvo: 0, faturamentoAlvo: 0, cacAlvo: 0 },
   users: [],
   activityLogs: [],
 };
