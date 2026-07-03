@@ -8,6 +8,10 @@ Projeto em **JavaScript puro** (React no front-end, Node.js/Express no back-end)
 
 ## Capturas de tela
 
+| Landing (pública) | Login |
+|---|---|
+| ![Landing](docs/screenshots/landing.png) | ![Login](docs/screenshots/login.png) |
+
 | Dashboard | Pacientes |
 |---|---|
 | ![Dashboard](docs/screenshots/dashboard.png) | ![Pacientes](docs/screenshots/pacientes.png) |
@@ -15,6 +19,16 @@ Projeto em **JavaScript puro** (React no front-end, Node.js/Express no back-end)
 | Agenda | Financeiro |
 |---|---|
 | ![Agenda](docs/screenshots/agenda.png) | ![Financeiro](docs/screenshots/financeiro.png) |
+
+## Autenticação
+
+O app tem uma landing page pública na raiz (`/`) com botões de **Entrar** e **Criar conta grátis**. O painel interno (`/app/...`) fica protegido — tanto no frontend (redireciona para `/entrar` se não estiver logado) quanto na API (todas as rotas em `/api/*`, exceto `/api/auth/*` e `/api/health`, exigem um token válido).
+
+- **Cadastro:** `/criar-conta` — cria um usuário novo (senha com mínimo 6 caracteres, hash com bcrypt)
+- **Login:** `/entrar` — retorna um token JWT válido por 30 dias, guardado no `localStorage` do navegador
+- **Conta de teste** (criada pelo `npm run seed`): `jonathan@clinicavitoria.com.br` / senha `clinica123`
+
+> Em produção, defina a variável de ambiente `JWT_SECRET` com um valor aleatório próprio (no Render: Settings → Environment). Sem isso, o projeto usa um valor padrão de desenvolvimento — funciona, mas não é recomendado para uso real.
 
 ## Stack
 
@@ -28,18 +42,21 @@ Projeto em **JavaScript puro** (React no front-end, Node.js/Express no back-end)
 ```
 clinic-hub-app/
 ├── backend/
-│   ├── server.js         # servidor Express e definição das rotas
+│   ├── server.js         # servidor Express, rotas e proteção de autenticação
 │   ├── db.js              # camada de acesso ao banco (lowdb)
-│   ├── seed.js             # gera dados de exemplo
+│   ├── seed.js             # gera dados de exemplo (inclui usuários e senha padrão)
 │   ├── data/db.json       # "banco de dados" (JSON) - já vem populado
+│   ├── middleware/auth.js  # validação do token JWT
 │   └── routes/
+│       ├── auth.js         # cadastro, login e usuário atual
 │       ├── crud.js         # CRUD genérico (pacientes, agenda, financeiro...)
 │       ├── dashboard.js    # métricas agregadas do dashboard
 │       └── assistant.js    # assistente de IA baseado em regras
 ├── frontend/
 │   └── src/
-│       ├── pages/          # Dashboard, Pacientes, Agenda, Financeiro, Assistente, Configurações
-│       ├── components/     # Sidebar, KPICard
+│       ├── pages/          # Landing, Login, Cadastro, Dashboard, Pacientes, Agenda, Financeiro, Assistente, Configurações
+│       ├── components/     # Sidebar, AppLayout, ProtectedRoute, KPICard
+│       ├── context/AuthContext.jsx  # estado de login (token, usuário, login/logout)
 │       └── styles.css      # design system (cores, tipografia, componentes)
 ├── docs/screenshots/       # imagens usadas neste README
 ├── package.json            # scripts de build/start para deploy como serviço único

@@ -1,16 +1,25 @@
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, CalendarClock, Wallet, Sparkles, Settings } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Users, CalendarClock, Wallet, Sparkles, Settings, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const links = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/pacientes', label: 'Pacientes', icon: Users },
-  { to: '/agenda', label: 'Agenda', icon: CalendarClock },
-  { to: '/financeiro', label: 'Financeiro', icon: Wallet },
-  { to: '/assistente', label: 'Assistente IA', icon: Sparkles },
-  { to: '/configuracoes', label: 'Configurações', icon: Settings },
+  { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/app/pacientes', label: 'Pacientes', icon: Users },
+  { to: '/app/agenda', label: 'Agenda', icon: CalendarClock },
+  { to: '/app/financeiro', label: 'Financeiro', icon: Wallet },
+  { to: '/app/assistente', label: 'Assistente IA', icon: Sparkles },
+  { to: '/app/configuracoes', label: 'Configurações', icon: Settings },
 ];
 
 export default function Sidebar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  function sair() {
+    logout();
+    navigate('/entrar');
+  }
+
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
@@ -33,7 +42,12 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
-      <div className="sidebar-foot">Clínica Vitória Saúde<br/>Integrada · v1.0</div>
+      <div className="sidebar-foot">
+        <div style={{ marginBottom: 8, color: 'rgba(255,255,255,.7)', fontWeight: 600 }}>{user?.nome}</div>
+        <button className="sidebar-link" style={{ width: '100%', border: 'none', background: 'transparent' }} onClick={sair}>
+          <LogOut size={16} strokeWidth={2} /><span>Sair</span>
+        </button>
+      </div>
     </aside>
   );
 }

@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import dayjs from 'dayjs';
+import bcrypt from 'bcryptjs';
 import { getDB } from './db.js';
 
 function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -131,11 +132,12 @@ async function seed() {
     criadoEm: dayjs().subtract(randInt(0, 30), 'day').toISOString(),
   }));
 
+  const senhaPadraoHash = await bcrypt.hash('clinica123', 10);
   const users = [
-    { id: uuid(), nome: 'Jonathan Batista', email: 'jonathan@clinicavitoria.com.br', perfil: 'Administrador', ativo: true },
-    { id: uuid(), nome: 'Fernanda Recepção', email: 'fernanda@clinicavitoria.com.br', perfil: 'Recepção', ativo: true },
-    { id: uuid(), nome: 'Contador Externo', email: 'financeiro@clinicavitoria.com.br', perfil: 'Financeiro', ativo: true },
-    ...professionals.map(p => ({ id: uuid(), nome: p.nome, email: p.email, perfil: 'Médico', ativo: true })),
+    { id: uuid(), nome: 'Jonathan Batista', email: 'jonathan@clinicavitoria.com.br', passwordHash: senhaPadraoHash, perfil: 'Administrador', ativo: true },
+    { id: uuid(), nome: 'Fernanda Recepção', email: 'fernanda@clinicavitoria.com.br', passwordHash: senhaPadraoHash, perfil: 'Recepção', ativo: true },
+    { id: uuid(), nome: 'Contador Externo', email: 'financeiro@clinicavitoria.com.br', passwordHash: senhaPadraoHash, perfil: 'Financeiro', ativo: true },
+    ...professionals.map(p => ({ id: uuid(), nome: p.nome, email: p.email, passwordHash: senhaPadraoHash, perfil: 'Médico', ativo: true })),
   ];
 
   db.data.professionals = professionals;
@@ -149,6 +151,7 @@ async function seed() {
 
   await db.write();
   console.log(`Seed concluído: ${patients.length} pacientes, ${appointments.length} agendamentos, ${financialTransactions.length} lançamentos financeiros.`);
+  console.log(`\nLogin de teste -> e-mail: jonathan@clinicavitoria.com.br | senha: clinica123`);
 }
 
 seed();
