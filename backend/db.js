@@ -23,6 +23,9 @@ const defaultData = {
   financialTransactions: [],
   clinicalRecords: [],
   leads: [],
+  trafficDaily: [],
+  marketingSpend: { mes: '', total: 0, porCanal: {} },
+  comercialActivities: [],
   users: [],
   activityLogs: [],
 };

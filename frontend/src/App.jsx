@@ -5,6 +5,7 @@ import AppLayout from './components/AppLayout.jsx';
 import ExternalRedirect from './components/ExternalRedirect.jsx';
 import Cadastro from './pages/Cadastro.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import Comercial from './pages/Comercial.jsx';
 import Pacientes from './pages/Pacientes.jsx';
 import Agenda from './pages/Agenda.jsx';
 import Financeiro from './pages/Financeiro.jsx';
@@ -27,6 +28,7 @@ export default function App() {
 
         <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />
+          <Route path="comercial" element={<Comercial />} />
           <Route path="pacientes" element={<Pacientes />} />
           <Route path="agenda" element={<Agenda />} />
           <Route path="financeiro" element={<Financeiro />} />

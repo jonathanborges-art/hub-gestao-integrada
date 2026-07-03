@@ -120,17 +120,61 @@ async function seed() {
     ]),
   }));
 
-  const origensLead = ['Instagram Ads', 'Google Ads', 'Indicação', 'WhatsApp', 'Site'];
-  const etapasFunil = ['Novo Contato', 'Qualificado', 'Agendou Avaliação', 'Compareceu', 'Fechou Pacote', 'Perdido'];
-  const leads = Array.from({ length: 16 }).map(() => ({
-    id: uuid(),
-    nome: rand(['Marcos Vidigal', 'Renata Coutinho', 'Diego Fardin', 'Priscila Mattedi', 'Gustavo Randi', 'Fernanda Biazus']),
-    telefone: `(27) 9${randInt(8000, 9999)}-${randInt(1000, 9999)}`,
-    origem: rand(origensLead),
-    etapa: rand(etapasFunil),
-    valorPotencial: randInt(200, 3000),
-    criadoEm: dayjs().subtract(randInt(0, 30), 'day').toISOString(),
-  }));
+  const canaisMarketing = ['Instagram Ads', 'Google Ads', 'Meta Ads', 'Indicação', 'WhatsApp', 'Site'];
+  const nomesLeads = [
+    'Marcos Vidigal', 'Renata Coutinho', 'Diego Fardin', 'Priscila Mattedi', 'Gustavo Randi', 'Fernanda Biazus',
+    'Rafaela Tommasi', 'Bruno Lyrio', 'Camila Zago', 'Vitor Hugo Neves', 'Aline Pretti', 'Marcelo Dutra',
+    'Juliana Rangel', 'Paulo Sartorio', 'Debora Comarela', 'Rodrigo Miranda',
+  ];
+  const leads = Array.from({ length: 60 }).map(() => {
+    const criadoEm = dayjs().subtract(randInt(0, 30), 'day').subtract(randInt(0, 23), 'hour');
+    const agendou = Math.random() < 0.55;
+    const compareceu = agendou && Math.random() < 0.77;
+    const propos = compareceu && Math.random() < 0.6;
+    const fechou = propos && Math.random() < 0.55;
+    return {
+      id: uuid(),
+      nome: rand(nomesLeads),
+      telefone: `(27) 9${randInt(8000, 9999)}-${randInt(1000, 9999)}`,
+      origem: rand(canaisMarketing),
+      criadoEm: criadoEm.toISOString(),
+      agendou,
+      compareceu,
+      propos,
+      fechou,
+      valorFechado: fechou ? randInt(300, 3200) : 0,
+    };
+  });
+
+  // Tráfego diário (últimos 14 dias) para o gráfico de performance do módulo comercial
+  const trafficDaily = [];
+  for (let i = 13; i >= 0; i--) {
+    const day = dayjs().subtract(i, 'day');
+    const visitantes = randInt(280, 720);
+    trafficDaily.push({
+      data: day.format('YYYY-MM-DD'),
+      visitantes,
+      leadsGerados: Math.round(visitantes * (randInt(4, 9) / 100)),
+      conversoes: randInt(0, 3),
+    });
+  }
+
+  // Investimento em mídia do mês atual, usado para calcular CPL/CAC/ROAS
+  const investimentoPorCanal = {};
+  canaisMarketing.filter(c => c.includes('Ads')).forEach(c => { investimentoPorCanal[c] = randInt(600, 1800); });
+  const marketingSpend = {
+    mes: dayjs().format('YYYY-MM'),
+    total: Object.values(investimentoPorCanal).reduce((s, v) => s + v, 0),
+    porCanal: investimentoPorCanal,
+  };
+
+  // Agenda comercial de hoje (calls e reuniões com leads, separado da agenda clínica de pacientes)
+  const comercialActivities = [
+    { id: uuid(), hora: '10:00', tipo: 'Call Comercial', com: rand(nomesLeads), status: 'confirmado' },
+    { id: uuid(), hora: '11:30', tipo: 'Follow-up Lead', com: rand(nomesLeads), status: 'agendado' },
+    { id: uuid(), hora: '14:00', tipo: 'Apresentação de Proposta', com: rand(nomesLeads), status: 'confirmado' },
+    { id: uuid(), hora: '16:30', tipo: 'Reunião Estratégica', com: 'Equipe interna', status: 'pendente' },
+  ];
 
   const senhaPadraoHash = await bcrypt.hash('clinica123', 10);
   const users = [
@@ -146,6 +190,9 @@ async function seed() {
   db.data.financialTransactions = financialTransactions;
   db.data.clinicalRecords = clinicalRecords;
   db.data.leads = leads;
+  db.data.trafficDaily = trafficDaily;
+  db.data.marketingSpend = marketingSpend;
+  db.data.comercialActivities = comercialActivities;
   db.data.users = users;
   db.data.activityLogs = [];
 

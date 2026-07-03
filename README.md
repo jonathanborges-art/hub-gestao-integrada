@@ -20,6 +20,10 @@ Projeto em **JavaScript puro** (React no front-end, Node.js/Express no back-end)
 |---|---|
 | ![Agenda](docs/screenshots/agenda.png) | ![Financeiro](docs/screenshots/financeiro.png) |
 
+| Visão Comercial |
+|---|
+| ![Visão Comercial](docs/screenshots/comercial.png) |
+
 ## Autenticação
 
 O app tem uma landing page pública na raiz (`/`) com botões de **Entrar** e **Criar conta grátis**. O painel interno (`/app/...`) fica protegido — tanto no frontend (redireciona para `/entrar` se não estiver logado) quanto na API (todas as rotas em `/api/*`, exceto `/api/auth/*` e `/api/health`, exigem um token válido).
@@ -113,6 +117,7 @@ Qualquer host que rode Node.js funciona do mesmo jeito (Build Command `npm run b
 ## Módulos implementados (primeira rodada)
 
 - **Dashboard** — faturamento do mês, consultas de hoje, pacientes ativos/novos, ticket médio, taxa de faltas, contas a pagar/receber, fluxo de caixa (gráfico), ranking de profissionais e de procedimentos
+- **Visão Comercial** — funil comercial (tráfego → leads → agendamentos → comparecimentos → propostas → fechamentos), CPL/CAC/ROAS, tráfego dos últimos 14 dias, agenda comercial do dia, origem dos leads por canal e índice de eficiência comercial (score 0-100)
 - **CRM de Pacientes** — cadastro, busca, filtro por convênio, prontuário (evolução clínica) e histórico financeiro por paciente, termo LGPD
 - **Agenda Inteligente** — visão diária navegável, filtro por profissional, atualização de status inline (agendado / confirmado / concluído / faltou / cancelado), novo agendamento
 - **Hub Financeiro** — lançamentos de receita/despesa, fluxo de caixa mensal (gráfico), filtros por tipo/status, contas a pagar e a receber
@@ -123,7 +128,6 @@ Qualquer host que rode Node.js funciona do mesmo jeito (Build Command `npm run b
 
 (mesmo escopo do brief original, não incluídos nesta primeira versão)
 
-- Marketing Digital (pipeline de leads, campanhas, ROI/CAC/LTV) — a base de dados de leads já existe na API (`/api/leads`), falta a interface
 - Estoque (produtos, insumos, validade, lote)
 - Portal do Paciente (login próprio, agendamento online, receitas/exames)
 - Gestão de Equipe mais completa (escalas, metas individuais, produtividade)

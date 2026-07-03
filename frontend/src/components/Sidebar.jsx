@@ -1,9 +1,10 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, CalendarClock, Wallet, Sparkles, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, CalendarClock, Wallet, Sparkles, Settings, LogOut, TrendingUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const links = [
   { to: '/app', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/app/comercial', label: 'Visão Comercial', icon: TrendingUp },
   { to: '/app/pacientes', label: 'Pacientes', icon: Users },
   { to: '/app/agenda', label: 'Agenda', icon: CalendarClock },
   { to: '/app/financeiro', label: 'Financeiro', icon: Wallet },

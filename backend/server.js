@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { getDB } from './db.js';
 import { crudRouter } from './routes/crud.js';
 import dashboardRouter from './routes/dashboard.js';
+import comercialRouter from './routes/comercial.js';
 import assistantRouter from './routes/assistant.js';
 import authRouter from './routes/auth.js';
 import { authMiddleware } from './middleware/auth.js';
@@ -31,6 +32,7 @@ app.use('/api/leads', crudRouter('leads'));
 app.use('/api/usuarios', crudRouter('users', ['passwordHash']));
 
 app.use('/api/dashboard', dashboardRouter);
+app.use('/api/comercial', comercialRouter);
 app.use('/api/assistente', assistantRouter);
 
 app.get('/api/clinica', async (req, res) => {

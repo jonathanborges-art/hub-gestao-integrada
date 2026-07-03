@@ -448,3 +448,36 @@ table.data-table tr:hover td { background: var(--verde-50); }
 @media (max-width: 640px) {
   .landing-hero h1 { font-size: 28px; }
 }
+
+/* ---------- Visão Comercial ---------- */
+.funnel { display: flex; flex-direction: column; gap: 8px; }
+.funnel-row { display: flex; align-items: center; gap: 12px; }
+.funnel-label { width: 130px; font-size: 12.5px; color: var(--tinta-700); font-weight: 600; flex-shrink: 0; }
+.funnel-bar-track { flex: 1; background: var(--cinza-100); border-radius: 6px; height: 26px; overflow: hidden; }
+.funnel-bar-fill {
+  height: 100%; border-radius: 6px; display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 10px; color: #fff; font-size: 12px; font-weight: 700; min-width: 42px;
+  transition: width 0.3s;
+}
+.funnel-drop { font-size: 11.5px; color: var(--vermelho-600); margin-left: 142px; margin-top: -2px; }
+
+.gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0; }
+.gauge-circle {
+  width: 132px; height: 132px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.gauge-inner {
+  width: 104px; height: 104px; border-radius: 50%; background: var(--branco);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.gauge-score { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--tinta-900); line-height: 1; }
+.gauge-max { font-size: 11px; color: var(--tinta-500); }
+
+.alert-item {
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px;
+  border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 8px; border: 1px solid var(--borda);
+}
+.alert-item.positivo { background: var(--verde-50); border-color: var(--verde-100); }
+.alert-item.atencao { background: var(--ambar-100); border-color: #f0dcb8; }
+.alert-item.critico { background: var(--vermelho-100); border-color: #f3cec8; }
