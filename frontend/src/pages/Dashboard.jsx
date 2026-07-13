@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../api/client.js';
 import KPICard from '../components/KPICard.jsx';
+import NotificationBanner from '../components/NotificationBanner.jsx';
 import {
   DollarSign, CalendarDays, Users, UserPlus, Receipt, AlertTriangle, TrendingDown, TrendingUp,
 } from 'lucide-react';
@@ -23,6 +24,7 @@ export default function Dashboard() {
 
   return (
     <div>
+      <NotificationBanner />
       <div className="page-head">
         <div>
           <div className="page-eyebrow">Visão geral</div>

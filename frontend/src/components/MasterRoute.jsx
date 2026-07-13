@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
-export default function ProtectedRoute({ children }) {
+export default function MasterRoute({ children }) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -10,8 +10,8 @@ export default function ProtectedRoute({ children }) {
   if (!user) {
     return <Navigate to="/entrar" replace />;
   }
-  if (user.perfil === 'Master') {
-    return <Navigate to="/master" replace />;
+  if (user.perfil !== 'Master') {
+    return <Navigate to="/app" replace />;
   }
   return children;
 }

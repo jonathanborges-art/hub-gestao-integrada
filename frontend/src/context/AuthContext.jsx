@@ -34,8 +34,8 @@ export function AuthProvider({ children }) {
     return data.user;
   }
 
-  async function register(nome, email, senha) {
-    const { data } = await api.post('/auth/register', { nome, email, senha });
+  async function register(nome, email, senha, nomeClinica) {
+    const { data } = await api.post('/auth/register', { nome, email, senha, nomeClinica });
     localStorage.setItem('hg_token', data.token);
     setUser(data.user);
     return data.user;

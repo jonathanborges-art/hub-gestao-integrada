@@ -1,28 +1,37 @@
 import { Router } from 'express';
 import dayjs from 'dayjs';
-import { getDB } from '../db.js';
+import { pool } from '../db/pool.js';
+import { toCamelRows } from '../db/case.js';
 
 const router = Router();
 
 router.get('/', async (req, res) => {
-  const db = await getDB();
-  const { leads, trafficDaily, marketingSpend, comercialActivities } = db.data;
+  const clinicId = req.clinicId;
+  const startWindow = dayjs().subtract(30, 'day').toISOString();
 
-  const startWindow = dayjs().subtract(30, 'day');
-  const leadsMes = leads.filter(l => dayjs(l.criadoEm).isAfter(startWindow));
+  const [leadsRes, trafficRes, spendRes, activitiesRes, professionalsRes] = await Promise.all([
+    pool.query(`select * from leads where clinic_id=$1 and criado_em >= $2`, [clinicId, startWindow]),
+    pool.query(`select * from traffic_daily where clinic_id=$1 order by data`, [clinicId]),
+    pool.query(`select * from marketing_spend where clinic_id=$1 order by mes desc limit 1`, [clinicId]),
+    pool.query(`select * from comercial_activities where clinic_id=$1 order by hora`, [clinicId]),
+    pool.query(`select * from professionals where clinic_id=$1`, [clinicId]),
+  ]);
 
-  const leadsRecebidos = leadsMes.length;
-  const agendamentos = leadsMes.filter(l => l.agendou).length;
-  const comparecimentos = leadsMes.filter(l => l.compareceu).length;
-  const propostas = leadsMes.filter(l => l.propos).length;
-  const vendasFechadas = leadsMes.filter(l => l.fechou).length;
-  const valorVendas = leadsMes.filter(l => l.fechou).reduce((s, l) => s + (l.valorFechado || 0), 0);
+  const leads = toCamelRows(leadsRes.rows);
+  const leadsRecebidos = leads.length;
+  const agendamentos = leads.filter(l => l.agendou).length;
+  const comparecimentos = leads.filter(l => l.compareceu).length;
+  const propostas = leads.filter(l => l.propos).length;
+  const vendasFechadas = leads.filter(l => l.fechou).length;
+  const valorVendas = leads.filter(l => l.fechou).reduce((s, l) => s + Number(l.valorFechado || 0), 0);
 
   const taxaConversao = leadsRecebidos ? Math.round((vendasFechadas / leadsRecebidos) * 1000) / 10 : 0;
   const showRate = agendamentos ? Math.round((comparecimentos / agendamentos) * 1000) / 10 : 0;
 
+  const trafficDaily = toCamelRows(trafficRes.rows);
   const traficoTotal = trafficDaily.reduce((s, d) => s + d.visitantes, 0);
-  const investimento = marketingSpend.total || 0;
+  const marketingSpend = spendRes.rows[0] ? toCamelRows(spendRes.rows)[0] : { total: 0, porCanal: {} };
+  const investimento = Number(marketingSpend.total || 0);
   const cpl = leadsRecebidos ? Math.round(investimento / leadsRecebidos) : 0;
   const cac = vendasFechadas ? Math.round(investimento / vendasFechadas) : 0;
   const roas = investimento ? Math.round((valorVendas / investimento) * 10) / 10 : 0;
@@ -36,9 +45,8 @@ router.get('/', async (req, res) => {
     { etapa: 'Fechamentos', valor: vendasFechadas },
   ];
 
-  // Origem dos leads (desempenho por canal)
   const canaisMap = {};
-  leadsMes.forEach(l => {
+  leads.forEach(l => {
     if (!canaisMap[l.origem]) canaisMap[l.origem] = { canal: l.origem, leads: 0, agendados: 0, compareceram: 0, vendas: 0 };
     canaisMap[l.origem].leads += 1;
     if (l.agendou) canaisMap[l.origem].agendados += 1;
@@ -49,13 +57,11 @@ router.get('/', async (req, res) => {
     .map(c => ({ ...c, conversao: c.leads ? Math.round((c.vendas / c.leads) * 1000) / 10 : 0 }))
     .sort((a, b) => b.leads - a.leads);
 
-  // Índice de eficiência comercial (0-100), combinando conversão, show rate e ROAS
-  const scoreConversao = Math.min(taxaConversao / 10, 1) * 40; // até 10% de conversão = nota máxima
-  const scoreShowRate = Math.min(showRate / 85, 1) * 35; // 85% de comparecimento = nota máxima
-  const scoreRoas = Math.min(roas / 5, 1) * 25; // ROAS 5x = nota máxima
+  const scoreConversao = Math.min(taxaConversao / 10, 1) * 40;
+  const scoreShowRate = Math.min(showRate / 85, 1) * 35;
+  const scoreRoas = Math.min(roas / 5, 1) * 25;
   const indiceEficiencia = Math.round(scoreConversao + scoreShowRate + scoreRoas);
 
-  // Alertas dinâmicos, calculados a partir dos números acima
   const alertas = [];
   if (taxaConversao >= 8) alertas.push({ tipo: 'positivo', texto: `Conversão em ${taxaConversao}% — acima da média do setor.` });
   if (showRate < 70 && agendamentos > 0) alertas.push({ tipo: 'atencao', texto: `Show rate em ${showRate}% — considere confirmação automática por WhatsApp.` });
@@ -64,24 +70,9 @@ router.get('/', async (req, res) => {
   if (alertas.length === 0) alertas.push({ tipo: 'positivo', texto: 'Funil comercial saudável neste período.' });
 
   res.json({
-    leadsRecebidos,
-    agendamentos,
-    comparecimentos,
-    propostas,
-    vendasFechadas,
-    valorVendas,
-    taxaConversao,
-    showRate,
-    traficoTotal,
-    cpl,
-    cac,
-    roas,
-    funil,
-    origemLeads,
-    indiceEficiencia,
-    alertas,
-    trafficDaily,
-    agendaComercialHoje: comercialActivities,
+    leadsRecebidos, agendamentos, comparecimentos, propostas, vendasFechadas, valorVendas,
+    taxaConversao, showRate, traficoTotal, cpl, cac, roas, funil, origemLeads,
+    indiceEficiencia, alertas, trafficDaily, agendaComercialHoje: toCamelRows(activitiesRes.rows),
   });
 });
 

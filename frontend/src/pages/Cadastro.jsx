@@ -6,6 +6,7 @@ export default function Cadastro() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [nome, setNome] = useState('');
+  const [nomeClinica, setNomeClinica] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
@@ -16,7 +17,7 @@ export default function Cadastro() {
     setErro('');
     setCarregando(true);
     try {
-      await register(nome, email, senha);
+      await register(nome, email, senha, nomeClinica);
       navigate('/app');
     } catch (err) {
       setErro(err.response?.data?.error || 'Não foi possível criar a conta. Tente novamente.');
@@ -33,11 +34,15 @@ export default function Cadastro() {
           <strong>Hub Gestão Integrada</strong>
         </Link>
         <h1 className="auth-title">Criar conta</h1>
-        <p className="auth-sub">Comece a usar o Hub Gestão Integrada gratuitamente.</p>
+        <p className="auth-sub">Cada conta cria uma clínica nova, com dados totalmente separados das demais.</p>
 
         <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div className="field">
-            <label>Nome completo</label>
+            <label>Nome da clínica</label>
+            <input required value={nomeClinica} onChange={e => setNomeClinica(e.target.value)} placeholder="Ex: Clínica Vida Plena" />
+          </div>
+          <div className="field">
+            <label>Seu nome completo</label>
             <input required value={nome} onChange={e => setNome(e.target.value)} placeholder="Seu nome" />
           </div>
           <div className="field">

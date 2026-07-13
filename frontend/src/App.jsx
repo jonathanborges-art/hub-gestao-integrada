@@ -1,7 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import MasterRoute from './components/MasterRoute.jsx';
 import AppLayout from './components/AppLayout.jsx';
+import MasterLayout from './components/MasterLayout.jsx';
 import ExternalRedirect from './components/ExternalRedirect.jsx';
 import Cadastro from './pages/Cadastro.jsx';
 import Dashboard from './pages/Dashboard.jsx';
@@ -20,6 +22,9 @@ import Agenda from './pages/Agenda.jsx';
 import Financeiro from './pages/Financeiro.jsx';
 import Assistente from './pages/Assistente.jsx';
 import Configuracoes from './pages/Configuracoes.jsx';
+import MasterClinicas from './pages/master/MasterClinicas.jsx';
+import MasterUsuarios from './pages/master/MasterUsuarios.jsx';
+import MasterNotificacoes from './pages/master/MasterNotificacoes.jsx';
 
 const SITE_INSTITUCIONAL = 'https://jonathanborges-art.github.io/HUB-GEST-O-INTEGRADA/';
 const SITE_LOGIN = 'https://jonathanborges-art.github.io/HUB-GEST-O-INTEGRADA/login.html';
@@ -52,6 +57,12 @@ export default function App() {
           <Route path="financeiro" element={<Financeiro />} />
           <Route path="assistente" element={<Assistente />} />
           <Route path="configuracoes" element={<Configuracoes />} />
+        </Route>
+
+        <Route path="/master" element={<MasterRoute><MasterLayout /></MasterRoute>}>
+          <Route index element={<MasterClinicas />} />
+          <Route path="usuarios" element={<MasterUsuarios />} />
+          <Route path="notificacoes" element={<MasterNotificacoes />} />
         </Route>
       </Routes>
     </AuthProvider>
