@@ -13,7 +13,9 @@ api.interceptors.response.use(
   (err) => {
     if (err.response && err.response.status === 401) {
       localStorage.removeItem('hg_token');
-      if (window.location.pathname.startsWith('/app')) {
+      localStorage.removeItem('hg_master_token');
+      localStorage.removeItem('hg_impersonating_clinic');
+      if (window.location.pathname.startsWith('/app') || window.location.pathname.startsWith('/master')) {
         window.location.href = '/entrar';
       }
     }

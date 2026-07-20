@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import api from '../../api/client.js';
-import { Building2, Users, DollarSign, Activity } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext.jsx';
+import { Building2, Users, DollarSign, Activity, LogIn } from 'lucide-react';
 
 const fmtBRL = (v) => (v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export default function MasterClinicas() {
   const [resumo, setResumo] = useState(null);
   const [clinicas, setClinicas] = useState([]);
+  const [entrando, setEntrando] = useState(null);
+  const { startImpersonation } = useAuth();
+  const navigate = useNavigate();
 
   const carregar = () => {
     api.get('/master/resumo').then(res => setResumo(res.data));
@@ -18,6 +23,18 @@ export default function MasterClinicas() {
   async function alternarAtivo(c) {
     const { data } = await api.put(`/master/clinicas/${c.id}`, { ativo: !c.ativo });
     setClinicas(clinicas.map(x => x.id === c.id ? { ...x, ativo: data.ativo } : x));
+  }
+
+  async function acessarClinica(c) {
+    setEntrando(c.id);
+    try {
+      await startImpersonation(c.id);
+      navigate('/app');
+    } catch (err) {
+      alert(err.response?.data?.error || 'Não foi possível acessar esta clínica.');
+    } finally {
+      setEntrando(null);
+    }
   }
 
   if (!resumo) return <div className="empty-state">Carregando painel Master...</div>;
@@ -41,7 +58,7 @@ export default function MasterClinicas() {
 
       <div className="card" style={{ padding: 0 }}>
         <table className="data-table">
-          <thead><tr><th>Clínica</th><th>Plano</th><th>Pacientes</th><th>Usuários</th><th>Faturamento</th><th>Cadastrada em</th><th>Status</th><th></th></tr></thead>
+          <thead><tr><th>Clínica</th><th>Plano</th><th>Pacientes</th><th>Usuários</th><th>Faturamento</th><th>Cadastrada em</th><th>Status</th><th></th><th></th></tr></thead>
           <tbody>
             {clinicas.map(c => (
               <tr key={c.id}>
@@ -52,10 +69,21 @@ export default function MasterClinicas() {
                 <td>{fmtBRL(c.faturamentoTotal)}</td>
                 <td>{dayjs(c.createdAt).format('DD/MM/YYYY')}</td>
                 <td><span className={`badge ${c.ativo ? 'badge-green' : 'badge-red'}`}>{c.ativo ? 'Ativa' : 'Suspensa'}</span></td>
+                <td>
+                  <button
+                    className="btn btn-sm"
+                    style={{ background: '#8B5CF6', color: '#fff', border: 'none' }}
+                    disabled={!c.ativo || entrando === c.id}
+                    onClick={() => acessarClinica(c)}
+                    title={!c.ativo ? 'Reative a clínica antes de acessar' : 'Ver e editar os dados desta clínica'}
+                  >
+                    <LogIn size={13} /> {entrando === c.id ? 'Entrando...' : 'Acessar'}
+                  </button>
+                </td>
                 <td><button className="btn btn-secondary btn-sm" onClick={() => alternarAtivo(c)}>{c.ativo ? 'Suspender' : 'Reativar'}</button></td>
               </tr>
             ))}
-            {clinicas.length === 0 && <tr><td colSpan={8}><div className="empty-state">Nenhuma clínica cadastrada ainda.</div></td></tr>}
+            {clinicas.length === 0 && <tr><td colSpan={9}><div className="empty-state">Nenhuma clínica cadastrada ainda.</div></td></tr>}
           </tbody>
         </table>
       </div>

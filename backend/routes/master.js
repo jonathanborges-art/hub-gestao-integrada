@@ -2,6 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import { pool } from '../db/pool.js';
 import { toCamel, toCamelRows } from '../db/case.js';
+import { signImpersonationToken } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -18,6 +19,17 @@ router.get('/clinicas', async (req, res) => {
     order by c.created_at desc
   `);
   res.json(toCamelRows(rows));
+});
+
+// Gera um token temporário (4h) que faz o Master "acessar como" essa clínica,
+// com acesso total (ler e editar) a todos os recursos dela.
+router.post('/clinicas/:id/impersonate', async (req, res) => {
+  const { rows } = await pool.query('select id, nome, ativo from clinics where id = $1', [req.params.id]);
+  const clinic = rows[0];
+  if (!clinic) return res.status(404).json({ error: 'Clínica não encontrada.' });
+  if (clinic.ativo === false) return res.status(403).json({ error: 'Esta clínica está suspensa. Reative-a antes de acessar.' });
+  const token = signImpersonationToken(req.userId, clinic.id);
+  res.json({ token, clinic: toCamel(clinic) });
 });
 
 router.put('/clinicas/:id', async (req, res) => {
